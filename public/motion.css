@@ -1,0 +1,59 @@
+/* Pohyb je doplněk; obsah i ovládání fungují bez něj. */
+.cursor-glow{position:fixed;top:0;left:0;width:430px;height:430px;border-radius:50%;pointer-events:none;z-index:4;opacity:0;background:radial-gradient(circle,rgba(199,160,255,.115) 0%,rgba(171,97,226,.05) 28%,rgba(218,74,99,.025) 46%,transparent 68%);transition:opacity .35s;will-change:transform;mix-blend-mode:screen}
+.cursor-glow.is-visible{opacity:1}
+.hero-art:before{content:"";position:absolute;inset:12%;border-radius:50%;background:radial-gradient(ellipse,#ce345033,#9e58e61c 45%,transparent 72%);filter:blur(24px);animation:ambient-breathe 8s ease-in-out infinite alternate;pointer-events:none}
+.hero-logo{transition:transform .5s ease,filter .5s ease}.hero-art:hover .hero-logo{transform:rotate(0deg);filter:drop-shadow(0 0 30px #ae355638)}
+.button,.filter,.icon-button,.day-button,.reaction-button,.calendar-small,.card-platform-row a{transition:background .18s,border-color .18s,box-shadow .18s,transform .18s,color .18s}
+.button:active,.filter:active,.icon-button:active,.day-button:active,.reaction-button:active{transform:scale(.97)}
+.primary{background:#5c269d;color:#fff;border:1px solid #b389ef;position:relative;overflow:hidden}
+.primary:after{content:"";position:absolute;inset:0;transform:translateX(-110%);background:linear-gradient(100deg,transparent 20%,#ffffff13,transparent 80%);pointer-events:none}
+.primary:hover:after{animation:button-sheen .65s ease}
+.primary.kick{background:#1e3820;border-color:#71ba50}
+.platform-icon{display:inline-block;object-fit:contain;flex-shrink:0;width:17px;height:18px;vertical-align:middle}
+.platform-icon.kick{width:36px;height:15px}
+.platform-label{gap:8px}.platform-label.twitch{color:#d6bbff}
+.filter .platform-icon{width:16px;height:16px}.filter .platform-icon.kick{width:34px}
+.filter[data-filter="kick"].active{background:#21351b;border-color:#53823c;color:#d4fac4}
+.filter:hover{border-color:#786387;background:#211a2a}
+.filter[data-filter="kick"]:hover{border-color:#53823c}
+.card-platform-row a{padding:8px 10px;margin-left:-10px;border-radius:7px;min-height:40px;display:flex;align-items:center}
+.card-platform-row a:hover,.card-platform-row a:focus-visible{background:#ad77fa15}
+.card-platform-row a:has(.kick):hover{background:#53fc1810}
+.platform-arrow{font-size:12px;opacity:.5;margin-left:2px;transition:transform .18s,opacity .18s}
+.card-platform-row a:hover .platform-arrow{transform:translate(2px,-2px);opacity:1}
+.stream-card{transition:transform .24s,border-color .24s,box-shadow .24s;position:relative}
+.stream-card:focus-within{border-color:#8c6baa;box-shadow:0 0 0 1px #a077c324}
+.day-button.active{box-shadow:0 0 18px #a277de20;border-color:#c09add}
+.day-button:hover:not(:disabled){background:#261d30;border-color:#80668e}
+.reaction-button[aria-pressed="true"]{box-shadow:0 0 15px #b885ff17}
+.reaction-feedback{min-height:19px;font-size:10px;color:#cdb2ed;margin-top:7px;line-height:1.5}
+.card-art{height:160px;justify-content:center;isolation:isolate}
+.card-art:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 90%,#bd679c19,transparent 70%);z-index:-1}
+.card-art.rp{background:radial-gradient(ellipse at bottom,#63372255,transparent 80%),linear-gradient(125deg,#2a1e22,#18131d)}
+.card-art.sim{background:radial-gradient(ellipse at bottom,#34598155,transparent 80%),linear-gradient(125deg,#15232d,#151824)}
+.card-art.horror{background:radial-gradient(ellipse at bottom,#75213045,transparent 80%),linear-gradient(125deg,#22131c,#111317)}
+.card-art .badge{z-index:2;top:12px}
+.card-art .art-number{position:absolute;right:13px;bottom:10px;font-size:8px;z-index:2}
+.game-branding{position:relative;width:100%;height:106px;margin-top:22px;display:flex;align-items:center;justify-content:center;gap:19px;z-index:1}
+.game-logo{object-fit:contain;max-height:105px;width:84%;height:auto;transition:filter .3s}
+.game-branding .redm-logo{width:44%;height:46px}.game-branding .westhaven-logo{width:32%;height:96px}
+.brand-divider{height:42px;width:1px;background:linear-gradient(transparent,#c49f6055,transparent);flex-shrink:0}
+.game-branding.sim-branding{overflow:hidden;height:115px}
+.game-branding.sim-branding .game-logo{position:absolute;width:350px;max-width:none;max-height:none;height:auto;bottom:-6px;left:50%;transform:translateX(-50%)}
+.game-branding.dbd-branding .game-logo{width:94%;height:132px;max-height:none}
+.card-art.community .art-word{font-size:43px;letter-spacing:-2px;color:#e6cedf4d}
+.hero-game-brands{display:flex;align-items:center;gap:13px;margin-top:16px;min-height:42px}
+.hero-game-brands img{object-fit:contain;width:88px;height:38px}.hero-game-brands .westhaven-logo{width:52px;height:52px}
+.hero-game-brands span{color:#ad9fae;font-size:10px;letter-spacing:.6px}
+.countdown .digit-num{display:block;font:inherit;line-height:inherit;font-style:normal}
+.countdown .count-unit{display:block}
+@keyframes ambient-breathe{from{opacity:.5;transform:scale(.96)}to{opacity:.9;transform:scale(1.12)}}
+@keyframes button-sheen{to{transform:translateX(110%)}}
+@media(hover:hover) and (pointer:fine){.stream-card:hover{transform:translateY(-5px);border-color:#72547f;box-shadow:0 14px 35px #0004}.stream-card:has(.rp):hover{border-color:#8b6544}.stream-card:has(.sim):hover{border-color:#526d91}.stream-card:has(.horror):hover{border-color:#925062}.button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 22px #9c65dd20}.icon-button:hover:not(:disabled){transform:translateY(-2px);border-color:#9573ae}}
+@media(max-width:640px){.hero-game-brands{margin-top:13px;gap:10px}.hero-game-brands img{width:72px;height:28px}.hero-game-brands .westhaven-logo{width:43px;height:43px}.hero-game-brands span{font-size:9px}.hero-art:before{animation:none}.card-art{height:165px}.game-branding.sim-branding .game-logo{width:360px}.game-branding.dbd-branding .game-logo{width:88%}.filter{padding-left:8px;padding-right:8px;gap:6px}.filter .platform-icon.kick{width:29px}.reaction-feedback{font-size:11px}}
+@media(hover:none),(pointer:coarse){.cursor-glow{display:none}}
+@media(prefers-reduced-motion:reduce){.cursor-glow{display:none!important}.hero-art:before{animation:none!important}.hero-logo,.stream-card,.button,.day-button,.filter,.platform-arrow{transition:none!important;transform:none!important}}
+
+@media(max-width:640px){.hero-actions{grid-template-columns:1fr}.hero-actions .button{min-height:46px;white-space:nowrap}.hero-actions .primary{font-size:12px;gap:12px}.hero-actions .secondary{min-height:42px}}
+
+@media(max-width:640px){.cursor-glow{display:none!important}}

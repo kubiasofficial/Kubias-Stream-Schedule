@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function admin() {return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid)) && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.enabled == true;}
+  match /admins/{uid} {allow get: if request.auth != null && request.auth.uid == uid; allow list, write: if false;}
+  match /streams/{id} {
+   function valid() {
+    let d=request.resource.data;
+    return id.matches('^[a-zA-Z0-9_-]{1,100}$') && d.keys().hasAll(['title','description','category','art','theme','platform','start','end','status','visibility','liveUntil','change','version','updatedAt']) && d.keys().hasOnly(['title','description','category','art','theme','platform','start','end','status','visibility','liveUntil','change','version','updatedAt'])
+    && d.title is string && d.title.size()>0 && d.title.size()<=120
+    && d.description is string && d.description.size()<=1000
+    && d.category is string && d.category.size()<=100 && d.art is string && d.art.size()<=100
+    && d.change is string && d.change.size()<=200
+    && d.theme in ['rp','sim','horror','community'] && d.platform in ['twitch','kick']
+    && d.status in ['confirmed','tentative','cancelled'] && d.visibility in ['draft','published']
+    && d.start is int && d.end is int && d.end>d.start && d.end-d.start<=86400000
+    && d.liveUntil is int && (d.liveUntil==0 || (d.visibility=='published' && d.status!='cancelled' && d.liveUntil<=d.end && d.liveUntil<=request.time.toMillis()+28800000))
+    && d.version is int && d.updatedAt==request.time;
+   }
+   allow read: if resource.data.visibility == 'published' || admin();
+   allow create: if admin() && valid() && request.resource.data.version==1;
+   allow update: if admin() && valid() && request.resource.data.version==resource.data.version+1;
+   allow delete: if admin();
+  }
+ }
+}

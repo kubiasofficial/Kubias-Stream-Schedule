@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0c0b10">
+  <meta name="description" content="Rozpis streamů Kubias. Zjisti, co je v plánu, a dej vědět, jestli dorazíš.">
+
+  <title>KUBIAS — další stream začíná tady</title>
+  <link rel="icon" href="assets/mojelogo.png" type="image/png">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="motion.css">
+  <script defer src="schedule.js"></script>
+  <script defer src="motion.js"></script>
+  <script defer src="app.js"></script>
+  <script type="module" src="public-data.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Přejít na obsah</a>
+  <div class="site-shell">
+    <header class="header">
+      <a class="brand" href="./" aria-label="Kubias — úvod">
+        <img src="assets/mojelogo.png" width="48" height="48" alt="">
+        <span>KUBIAS<span class="brand-sub">OFFICIAL</span></span>
+      </a>
+      <nav aria-label="Hlavní navigace">
+        <a class="nav-current" href="#schedule">Rozpis streamů</a>
+        <button class="text-button community-link" data-open-info>kubiasArmy <span aria-hidden="true">↗</span></button>
+      </nav>
+      <span class="header-note"><span class="small-star" aria-hidden="true">✦</span> Hry. Příběhy. Společně.</span>
+    </header>
+
+    <main id="main">
+      <div class="intro-line"><span class="eyebrow">TVŮJ VEČER MÁ PLÁN.</span><span class="demo-label" id="data-status" role="status">ROZPIS STREAMŮ</span></div>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <div class="hero-meta"><span class="status-dot"></span><span id="hero-eyebrow">DALŠÍ STREAM</span><span id="hero-status" class="badge">Potvrzeno</span></div>
+          <h1 id="hero-title">Načítám program<span class="accent">.</span></h1>
+          <div id="hero-game-brands" class="hero-game-brands" hidden></div>
+          <p id="hero-description" class="hero-description">Další společný večer je za rohem.</p>
+          <div id="hero-date" class="hero-date">Časy zobrazujeme v Praze</div>
+          <p id="viewer-zone" class="viewer-zone"></p>
+          <div class="countdown-wrap">
+            <span id="countdown-label" class="eyebrow muted">STARTUJEME ZA</span>
+            <div id="countdown" class="countdown" aria-hidden="true"><span>00<small>HODIN</small></span><b>:</b><span>00<small>MINUT</small></span><b>:</b><span>00<small>SEKUND</small></span></div>
+            <p id="countdown-readable" class="sr-only"></p>
+          </div>
+          <div class="hero-actions"><a id="watch-link" class="button primary" href="https://www.twitch.tv/kubiasofiko" target="_blank" rel="noopener noreferrer">Otevřít Twitch <span aria-hidden="true">↗</span></a><button id="calendar-button" class="button secondary"><span aria-hidden="true">＋</span> Do kalendáře</button></div>
+          <p class="channel-note" id="channel-note">Twitch · kubiasofiko</p>
+        </div>
+        <div class="hero-art">
+          <div class="orbit orbit-one" aria-hidden="true"></div><div class="orbit orbit-two" aria-hidden="true"></div>
+          <img class="hero-logo" src="assets/mojelogo.png" width="1254" height="1254" alt="Kubias Official — portrét streamera s červeno-fialovým kruhovým logem" fetchpriority="high">
+          <span class="art-caption"><span aria-hidden="true">✦</span> VÍTEJ V KUBIASARMY <span aria-hidden="true">✦</span></span>
+        </div>
+      </section>
+
+      <div class="community-strip"><div class="community-symbol" aria-hidden="true">✦</div><div><strong>Ve dvou se to táhne. V Army se to hraje.</strong><p>Vyber si stream a ulož si svůj plán na večer.</p></div><span class="strip-tag">TVŮJ VEČER. NAŠE KOMUNITA.</span></div>
+
+      <section id="schedule" class="schedule-section" aria-labelledby="schedule-title">
+        <div class="section-heading">
+          <div><span class="eyebrow muted">ZAPIŠ SI DO DIÁŘE</span><h2 id="schedule-title">Tenhle týden <span class="accent">společně.</span></h2></div>
+          <div class="week-nav"><button id="prev-week" class="icon-button" aria-label="Předchozí týden">←</button><div><span id="week-range"></span><button id="current-week" class="text-button">Tento týden</button></div><button id="next-week" class="icon-button" aria-label="Další týden">→</button></div>
+        </div>
+        <div class="schedule-toolbar"><div class="filters" role="group" aria-label="Filtrovat platformu"><button data-filter="all" class="filter active" aria-pressed="true">Všechny streamy</button><button data-filter="twitch" class="filter" aria-pressed="false"><img class="platform-icon twitch" src="assets/twitch.svg" width="16" height="16" alt="">Twitch</button><button data-filter="kick" class="filter" aria-pressed="false"><img class="platform-icon kick" src="assets/kick.svg" width="36" height="15" alt=""><span class="sr-only">Kick</span></button></div><span class="timezone-note">◷ Časy v Praze <span id="timezone-offset"></span></span></div>
+        <div id="week-days" class="week-days" role="group" aria-label="Vybrat den"></div>
+        <div class="results-line"><p id="results-summary" aria-live="polite"></p><button id="clear-day" class="text-button" hidden>Zobrazit celý týden ×</button></div>
+        <div id="stream-grid" class="stream-grid"></div>
+        <noscript><div class="empty-state"><h3>Zapni JavaScript pro rozpis</h3><p>Aktuální rozpis vyžaduje JavaScript. Odkaz na Twitch výše funguje i bez JavaScriptu.</p></div></noscript>
+        <div class="schedule-footnote"><span aria-hidden="true">ⓘ</span><p>Časy jsou v Praze, konec je orientační. Reakce slouží jako tvůj osobní plán v tomto prohlížeči a neposílají se streamerovi.</p><button class="text-button" data-open-info>Jak to funguje?</button></div>
+      </section>
+
+      <section class="closing-note"><span class="eyebrow">NEJLEPŠÍ MOMENTY SE NEPLÁNUJÍ.</span><p>Ale je fajn vědět, <em>kdy být u toho.</em></p><a href="#main" class="text-button">Zpátky k dalšímu streamu ↑</a></section>
+    </main>
+
+    <footer><a href="./" class="footer-brand">KUBIAS<span> / kubiasArmy</span></a><p>Vytvořeno pro společné večery.</p><button class="text-button" data-open-info>Soukromí a informace</button></footer>
+  </div>
+  <dialog id="info-dialog" aria-labelledby="info-title">
+    <div class="dialog-heading"><span class="eyebrow">KUBIAS / INFORMACE</span><button id="close-info" class="icon-button" aria-label="Zavřít informace">×</button></div>
+    <h2 id="info-title">Malý web.<br>Společné večery.</h2>
+    <p>Program spravuje streamer. Označení LIVE se zapíná ručně, samotný plánovaný čas vysílání nepotvrzuje. Twitch otevírá profil kubiasofiko; Kick zatím úvodní stránku platformy.</p>
+    <h3>Tvoje reakce zůstává u tebe</h3><p>Po kliknutí na JDU, MOŽNÁ nebo NEDÁM uložíme volbu do localStorage tohoto prohlížeče. Další kliknutí na stejnou volbu ji odebere. Reakce neposíláme na server a nepoužíváme analytiku. Program se po propojení načítá z Google Firebase; tato služba a hosting zpracovávají technické údaje připojení.</p>
+    <p>Volby expirují po 30 dnech a při další návštěvě je odstraníme. Můžeš je smazat i teď. Při nedostupném úložišti fungují jen do zavření stránky. Hosting může zpracovávat běžné technické údaje připojení.</p>
+    <button id="clear-reactions" class="button secondary">Smazat moje reakce</button>
+    <p class="small muted">Přihlášení Google je určené pouze správci webu. Návštěvníci se nepřihlašují. Stažený kalendář je jednorázová kopie; pozdější změny programu se do něj automaticky nepromítnou.</p>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
