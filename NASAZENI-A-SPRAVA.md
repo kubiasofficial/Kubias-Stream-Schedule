@@ -1,4 +1,6 @@
-﻿# Nasazení a správa KUBIAS
+> Tento návod popisuje původní založení projektu. Pro aktuální verzi, společné reakce a odběr kalendáře pokračuj podle [AKTUALIZACE-1-2-5-7.md](AKTUALIZACE-1-2-5-7.md). Původní tvrzení o čistě lokálních reakcích a Firebase-only hostingu se na novou verzi nevztahují.
+
+# Nasazení a správa KUBIAS
 
 Stav: připravený statický web + Firebase administrace. Cloudové projekty dosud nejsou založené a přihlášení do skutečného účtu ještě není ověřené. Starší FAZE-1 dokument je historický návrh; tento návod popisuje implementovanou verzi.
 

@@ -1,27 +1,18 @@
-﻿# Ověření verze — 28. 9. 2026
+﻿# Ověření aktualizace — 29. 9. 2026
 
-## Prošlo
+Prošly všechny níže uvedené testy v lokálním prostředí. Žádný test nezapisoval do produkčního Firebase.
 
-- JavaScript syntax check pro veřejný web, načítání dat a administraci.
-- 19 kontrol Firestore pravidel v lokálním emulátoru demo-kubias: veřejné čtení publikovaných termínů, zákaz čtení konceptů, zákaz zápisu návštěvníkem i běžným přihlášeným účtem, zákaz přidělit si správce, správce může vytvořit/upravit/smazat, odmítnutí zastaralé verze, neplatných časů, neznámých polí a nepovoleného LIVE.
-- Integrační test v Edge proti izolovanému Firebase Auth + Firestore emulátoru: účet bez role odmítnut, přidání role, import WestHavenu a blokace opakovaného importu, editace, posun o hodinu, LIVE on/off, duplikace do konceptu, zrušení, nový termín, smazání, odhlášení.
-- Druhý nepřihlášený prohlížeč převzal změny přes snapshot listener a neviděl koncept.
-- Formulář odmítl konec před začátkem a nejednoznačný čas při podzimním přechodu na zimní čas.
-- Veřejný program: 28. 9. 2026, 18:30 Praha odpovídá 16:30 UTC. Odkaz na Twitch kubiasofiko. Loga se načítají.
-- Vizuální kontrola desktop a mobil 390 px; kontrola bez vodorovného přetékání také na 320 px.
-- Administrace bez konfigurace hlásí potřebné propojení a nenabízí nefunkční formulář.
-- Žádné neošetřené JavaScript chyby v kontrolovaných prohlížečových relacích.
+- 19 regresních kontrol oprávnění správce, konceptů, verzí termínů, dat a LIVE v Firestore emulátoru.
+- 24 kontrol nových pravidel reakcí: anonymní/nepřihlášený přístup, soukromí jednotlivých voleb, nemožnost měnit cizí hlas, zákaz samostatného přepsání součtu nebo hlasu, přesné změny součtů, třísekundový limit i při smazání a opětovném vložení, zákaz hlasovat po začátku nebo na zrušený/privátní stream, možnost odebrat hlas i po zrušení nebo smazání streamu.
+- 4 automatické testy kalendáře: stabilní UID a verze, UTC časy, zrušení, skrytí konceptů, escapování a UTF-8 skládání řádků, dekódování Firestore, GET/HEAD/304/405 a 503 při chybě zdroje bez vydávání prázdného kalendáře za úspěch.
+- Kontrola syntaxe všech JS a CJS souborů.
+- Edge proti emulátorům Auth a Firestore: dvě nezávislé návštěvnické relace, vznik anonymního účtu až při první reakci, sdílené součty a oddělená vlastní volba, stejné součty v administraci, obnovení volby po reloadu, odebrání jedné i všech vlastních reakcí.
+- Předvolby všech tří her, uložení budoucího streamu, filtry Dnes/Budoucí/Koncepty, opakování z 18. 10. na 25. 10. zachovalo čas 19:00 až 23:00 Praha přes změnu letního času.
+- Skutečný lokální HTTP ICS endpoint vrátil 200 a text/calendar, obsahoval publikované termíny a neobsahoval koncept.
+- LIVE přepnutí v administraci se projevilo na veřejném webu; při expiraci zhaslo zvýraznění a vrátil se běžný stav.
+- Vizuální kontrola desktopu 1440 px, mobilu 390 px a dialogu kalendáře; administrace bez horizontálního přetékání také na 320 px. Reduced-motion vypíná LIVE puls i světlo pod kurzorem.
+- Lokální server posílal bezpečnostní hlavičky odpovídající Vercelu (pouze s přidanými adresami lokálních emulátorů). V běžných prohlížečových tocích žádné neošetřené chyby aplikace.
 
-## Dosud nelze ověřit
+Předchozí testovací pokusy při vypnutém emulátoru selhaly kvůli nedostupnému serveru; po spuštění byly zopakovány úspěšně. Jedna příprava testovacího DST záznamu obsahovala nepovolené undefined; opravena a test opakován úspěšně. Nešlo o chybu produkčního formuláře.
 
-Cloudový Firebase/Vercel projekt není založený. Google popup proti skutečnému účtu, autorizovaná produkční doména, dokončený cloudový index, skutečné hostingové CSP hlavičky a chování při vyčerpání kvót je nutné ověřit po nasazení. Emulátor nepředstavuje ověření produkčního indexu. Pro integrační test bylo použito lokální testovací přihlášení, nikoli uživatelův Google účet.
-
-Testovací konfigurace, emulátorové přesměrování a účty jsou pouze v oddělené dočasné kopii. Produkční firebase-config.js zůstává null. Žádné cloudové prostředky nebyly vytvořeny, žádné skutečné termíny v cloudu nebyly změněny.
-
-## Opakování bezpečnostního testu
-
-```powershell
-firebase.cmd emulators:exec --only firestore --project demo-kubias "node tests/firestore-rules.cjs"
-```
-
-Test nejprve vymaže pouze lokální emulátorovou databázi projektu demo-kubias na 127.0.0.1:8080. Nikdy jej neupravuj tak, aby mířil na produkční endpoint.
+Zbývá ověření po nasazení: Anonymous provider, nová pravidla a nové API na skutečném Vercelu, následná synchronizace v konkrétní kalendářové aplikaci. Ta nebyla simulována jako hotová. Produkční Google přihlášení už uživatel ověřil při předchozím nasazení; v této verzi se jeho mechanismus nemění.

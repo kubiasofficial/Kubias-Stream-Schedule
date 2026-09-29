@@ -3,7 +3,42 @@ service cloud.firestore {
  match /databases/{database}/documents {
   function admin() {return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid)) && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.enabled == true;}
   match /admins/{uid} {allow get: if request.auth != null && request.auth.uid == uid; allow list, write: if false;}
+  function votePath(id) {return /databases/$(database)/documents/visitors/$(request.auth.uid)/votes/$(id);}
+  function choiceBefore(id) {return exists(votePath(id)) ? get(votePath(id)).data.choice : 'none';}
+  function choiceAfter(id) {return existsAfter(votePath(id)) ? getAfter(votePath(id)).data.choice : 'none';}
+  function oldCount(id,key) {let path=/databases/$(database)/documents/streams/$(id)/stats/reactions;return exists(path) ? get(path).data[key] : 0;}
+  function amount(choice,key) {return choice==key ? 1 : 0;}
+  function guardValid() {
+   let path=/databases/$(database)/documents/visitors/$(request.auth.uid);
+   return getAfter(path).data.updatedAt==request.time && (!exists(path) || request.time-get(path).data.updatedAt>=duration.value(3,'s'));
+  }
+  function countsValid(id) {
+   let before=choiceBefore(id);let after=choiceAfter(id);
+   let d=getAfter(/databases/$(database)/documents/streams/$(id)/stats/reactions).data;
+   return before!=after && guardValid()
+    && d.keys().hasOnly(['going','maybe','unavailable','updatedAt'])
+    && d.updatedAt==request.time
+    && d.going is int && d.maybe is int && d.unavailable is int
+    && d.going>=0 && d.maybe>=0 && d.unavailable>=0
+    && d.going==oldCount(id,'going')-amount(before,'going')+amount(after,'going')
+    && d.maybe==oldCount(id,'maybe')-amount(before,'maybe')+amount(after,'maybe')
+    && d.unavailable==oldCount(id,'unavailable')-amount(before,'unavailable')+amount(after,'unavailable');
+  }
+  function openStream(id) {let s=get(/databases/$(database)/documents/streams/$(id)).data;return s.visibility=='published' && s.status!='cancelled' && s.start>request.time.toMillis();}
+  match /visitors/{uid} {
+   allow get: if request.auth!=null && request.auth.uid==uid;
+   allow create,update: if request.auth!=null && request.auth.uid==uid && request.resource.data.keys().hasOnly(['updatedAt']) && request.resource.data.updatedAt==request.time && (!exists(/databases/$(database)/documents/visitors/$(uid)) || request.time-resource.data.updatedAt>=duration.value(3,'s'));
+   match /votes/{id} {
+    allow read: if request.auth!=null && request.auth.uid==uid;
+    allow create,update: if request.auth!=null && request.auth.uid==uid && openStream(id) && request.resource.data.keys().hasOnly(['choice','updatedAt']) && request.resource.data.choice in ['going','maybe','unavailable'] && request.resource.data.updatedAt==request.time && countsValid(id);
+    allow delete: if request.auth!=null && request.auth.uid==uid && countsValid(id);
+   }
+  }
   match /streams/{id} {
+   match /stats/{stat} {
+    allow get: if stat=='reactions' && (admin() || (exists(/databases/$(database)/documents/streams/$(id)) && get(/databases/$(database)/documents/streams/$(id)).data.visibility=='published') || (request.auth!=null && exists(votePath(id))));
+    allow create,update: if stat=='reactions' && request.auth!=null && countsValid(id) && (choiceAfter(id)=='none' || openStream(id));
+   }
    function valid() {
     let d=request.resource.data;
     return id.matches('^[a-zA-Z0-9_-]{1,100}$') && d.keys().hasAll(['title','description','category','art','theme','platform','start','end','status','visibility','liveUntil','change','version','updatedAt']) && d.keys().hasOnly(['title','description','category','art','theme','platform','start','end','status','visibility','liveUntil','change','version','updatedAt'])

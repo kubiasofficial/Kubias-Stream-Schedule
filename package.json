@@ -1,0 +1,12 @@
+{
+  "name": "kubias-program",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/calendar.test.js",
+    "dev": "node tests/dev-server.js"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

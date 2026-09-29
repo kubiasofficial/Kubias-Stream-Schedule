@@ -1,34 +1,20 @@
-# KUBIAS — rozpis streamů
+# KUBIAS — program streamů
 
-Statický HTML/CSS/JS web s Firebase Firestore a administrací přes Google přihlášení. Bez buildu a bez placených API. Zachované oficiální herní značky, animace a jemné světlo pod myší.
+HTML/CSS/JS web s Firestore, Google administrací, anonymními společnými reakcemi a kalendářovým odběrem na Vercelu.
 
-**Začni souborem [NASAZENI-A-SPRAVA.md](NASAZENI-A-SPRAVA.md).** Obsahuje založení Firebase Spark, nasazení Vercel, nastavení správce a každodenní práci.
+**Nasazení této aktualizace: [AKTUALIZACE-1-2-5-7.md](AKTUALIZACE-1-2-5-7.md).** Starší návod NASAZENI-A-SPRAVA.md popisuje založení projektu; pro novou verzi má přednost návod aktualizace.
 
-- Veřejný web: `public/index.html`
-- Administrace: `/admin/`
-- Firebase konfigurace: `public/firebase-config.js` (zatím `null` — doplnit z nového projektu)
-- Pravidla a indexy: `firestore.rules`, `firestore.indexes.json`
-- Hosting: `vercel.json`; volitelně Firebase Hosting přes `firebase.json`
-- Výsledek testů: `OVERENI.md`
+- Web: https://kubias-program.vercel.app/
+- Správa: https://kubias-program.vercel.app/admin/
+- Odběr po nasazení: https://kubias-program.vercel.app/api/calendar
+- Implementovány pouze body 1, 2, 5, 7: společné reakce, přehlednější admin, odběr programu, výraznější ruční LIVE.
+- Správa vyžaduje Google provider a admins/UID s boolean enabled=true. Reakce vyžadují Anonymous provider a nová Firestore pravidla.
+- Návštěvnická identita je oddělená od přihlášení správce. Staré localStorage volby se automaticky nepřenášejí.
+- Kalendář je Vercel Node funkce s veřejným čtením Firestore. Žádná Firebase Function, service-account klíč, placené API ani externí npm závislost.
+- Vercel Hobby a Firebase Spark mají kvóty. Vercel Hobby platí pro osobní nekomerční použití. Firebase-only Hosting nenahrazuje Node funkci kalendáře.
 
-Bez Firebase zobrazuje oznámený WestHaven 28. 9. 2026 v 18:30 Praha. Po propojení jsou zdrojem výhradně termíny databáze; správce použije tlačítko importu. Konec 22:30 je orientační.
+Testy a omezení jsou v [OVERENI.md](OVERENI.md). Automatické testy ICS spustíš příkazem `npm.cmd test`, emulátorové testy podle návodu aktualizace. Produkční index visibility ASC + start DESC se nemění.
 
-Lokální náhled:
+Při zrušení publikovaného streamu použij Zrušit stream, aby odběratelé kalendáře dostali informaci o zrušení. Aktualizace v kalendáři závisí na klientovi a nemusí být okamžitá.
 
-```powershell
-python -m http.server 4173 --bind 127.0.0.1 --directory public
-```
-
-Otevři http://127.0.0.1:4173. Google přihlášení vyžaduje skutečné nastavení Firebase a autorizovanou doménu.
-
-Pravidla lze znovu testovat bez produkčních dat:
-
-```powershell
-firebase.cmd emulators:exec --only firestore --project demo-kubias "node tests/firestore-rules.cjs"
-```
-
-Test používá pouze lokální port 8080 a demo-kubias. Cloudový service-account klíč není potřeba.
-
-Reakce návštěvníka jsou osobní localStorage, nikoli hlasovací backend. Nepoužíváme analytiku, Functions, Storage ani Twitch API. Vercel Hobby je omezen na nekomerční použití; bezplatná alternativa Firebase Hosting je popsaná v návodu. Bezplatné tarify mají kvóty.
-
-Historický dokument FAZE-1-ANALYZA-A-NAVRH.md není specifikací hotové verze. Zdroj log a podmínky jejich použití jsou v ASSET-SOURCES.md.
+Loga a zdroje: ASSET-SOURCES.md. FAZE-1-ANALYZA-A-NAVRH.md je historický návrh, nikoli specifikace hotové verze.

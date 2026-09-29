@@ -10,10 +10,13 @@
   <link rel="icon" href="assets/mojelogo.png" type="image/png">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="motion.css">
+  <link rel="stylesheet" href="updates.css">
   <script defer src="schedule.js"></script>
   <script defer src="motion.js"></script>
   <script defer src="app.js"></script>
   <script type="module" src="public-data.js"></script>
+  <script type="module" src="reactions.js"></script>
+  <script defer src="subscription.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Přejít na obsah</a>
@@ -46,7 +49,7 @@
             <p id="countdown-readable" class="sr-only"></p>
           </div>
           <div class="hero-actions"><a id="watch-link" class="button primary" href="https://www.twitch.tv/kubiasofiko" target="_blank" rel="noopener noreferrer">Otevřít Twitch <span aria-hidden="true">↗</span></a><button id="calendar-button" class="button secondary"><span aria-hidden="true">＋</span> Do kalendáře</button></div>
-          <p class="channel-note" id="channel-note">Twitch · kubiasofiko</p>
+          <p id="live-invite" class="live-invite" hidden>Jsme živě. Přijď pozdravit — příběh pokračuje s tebou.</p><p class="channel-note" id="channel-note">Twitch · kubiasofiko</p>
         </div>
         <div class="hero-art">
           <div class="orbit orbit-one" aria-hidden="true"></div><div class="orbit orbit-two" aria-hidden="true"></div>
@@ -63,11 +66,12 @@
           <div class="week-nav"><button id="prev-week" class="icon-button" aria-label="Předchozí týden">←</button><div><span id="week-range"></span><button id="current-week" class="text-button">Tento týden</button></div><button id="next-week" class="icon-button" aria-label="Další týden">→</button></div>
         </div>
         <div class="schedule-toolbar"><div class="filters" role="group" aria-label="Filtrovat platformu"><button data-filter="all" class="filter active" aria-pressed="true">Všechny streamy</button><button data-filter="twitch" class="filter" aria-pressed="false"><img class="platform-icon twitch" src="assets/twitch.svg" width="16" height="16" alt="">Twitch</button><button data-filter="kick" class="filter" aria-pressed="false"><img class="platform-icon kick" src="assets/kick.svg" width="36" height="15" alt=""><span class="sr-only">Kick</span></button></div><span class="timezone-note">◷ Časy v Praze <span id="timezone-offset"></span></span></div>
+        <div class="subscribe-strip"><div><strong>Program vždy po ruce.</strong><p>Odebírej rozpis ve svém kalendáři včetně pozdějších změn.</p></div><button id="subscribe-open" class="button secondary">Odebírat kalendář ↗</button></div>
         <div id="week-days" class="week-days" role="group" aria-label="Vybrat den"></div>
         <div class="results-line"><p id="results-summary" aria-live="polite"></p><button id="clear-day" class="text-button" hidden>Zobrazit celý týden ×</button></div>
         <div id="stream-grid" class="stream-grid"></div>
         <noscript><div class="empty-state"><h3>Zapni JavaScript pro rozpis</h3><p>Aktuální rozpis vyžaduje JavaScript. Odkaz na Twitch výše funguje i bez JavaScriptu.</p></div></noscript>
-        <div class="schedule-footnote"><span aria-hidden="true">ⓘ</span><p>Časy jsou v Praze, konec je orientační. Reakce slouží jako tvůj osobní plán v tomto prohlížeči a neposílají se streamerovi.</p><button class="text-button" data-open-info>Jak to funguje?</button></div>
+        <div class="schedule-footnote"><span aria-hidden="true">ⓘ</span><p>Časy jsou v Praze, konec je orientační. Reakce se sčítají pro všechny diváky. Jedna volba na anonymní účet prohlížeče; stejným tlačítkem ji odebereš.</p><button class="text-button" data-open-info>Jak to funguje?</button></div>
       </section>
 
       <section class="closing-note"><span class="eyebrow">NEJLEPŠÍ MOMENTY SE NEPLÁNUJÍ.</span><p>Ale je fajn vědět, <em>kdy být u toho.</em></p><a href="#main" class="text-button">Zpátky k dalšímu streamu ↑</a></section>
@@ -79,11 +83,12 @@
     <div class="dialog-heading"><span class="eyebrow">KUBIAS / INFORMACE</span><button id="close-info" class="icon-button" aria-label="Zavřít informace">×</button></div>
     <h2 id="info-title">Malý web.<br>Společné večery.</h2>
     <p>Program spravuje streamer. Označení LIVE se zapíná ručně, samotný plánovaný čas vysílání nepotvrzuje. Twitch otevírá profil kubiasofiko; Kick zatím úvodní stránku platformy.</p>
-    <h3>Tvoje reakce zůstává u tebe</h3><p>Po kliknutí na JDU, MOŽNÁ nebo NEDÁM uložíme volbu do localStorage tohoto prohlížeče. Další kliknutí na stejnou volbu ji odebere. Reakce neposíláme na server a nepoužíváme analytiku. Program se po propojení načítá z Google Firebase; tato služba a hosting zpracovávají technické údaje připojení.</p>
-    <p>Volby expirují po 30 dnech a při další návštěvě je odstraníme. Můžeš je smazat i teď. Při nedostupném úložišti fungují jen do zavření stránky. Hosting může zpracovávat běžné technické údaje připojení.</p>
-    <button id="clear-reactions" class="button secondary">Smazat moje reakce</button>
-    <p class="small muted">Přihlášení Google je určené pouze správci webu. Návštěvníci se nepřihlašují. Stažený kalendář je jednorázová kopie; pozdější změny programu se do něj automaticky nepromítnou.</p>
+    <h3>Společné reakce bez jména</h3><p>První reakcí se vytvoří anonymní Firebase účet v tomto prohlížeči. Do Firebase ukládáme identifikátor účtu, vybraný stream, volbu a čas změny. Veřejné jsou pouze součty; jednotlivé volby vidíš jen ty. Přihlášení přes Google není potřeba.</p>
+    <p>Opětovným kliknutím volbu odebereš. Tlačítkem níže odebereš všechny reakce dostupné tomuto účtu, i u minulých streamů. Kvůli omezení opakovaných zápisů to může trvat několik sekund na reakci. Anonymní účet a poslední čas zápisu zůstávají pro ochranu před opakováním; hlasy samy nemažeme po 30 dnech. Smazáním dat prohlížeče ztratíš přístup ke starému anonymnímu účtu.</p>
+    <button id="clear-reactions" class="button secondary">Odebrat moje reakce</button>
+    <p class="small muted">Nepoužíváme analytiku. Firebase a hosting zpracovávají také technické údaje připojení. Přihlášení Google slouží správci. „Do kalendáře“ stáhne jednorázovou kopii; „Odebírat kalendář“ přidá průběžně aktualizovaný rozpis. Interval obnovení určuje tvoje kalendářová aplikace.</p>
   </dialog>
+  <dialog id="subscribe-dialog" aria-labelledby="subscribe-title"><div class="dialog-heading"><span class="eyebrow">KUBIAS / KALENDÁŘ</span><button id="subscribe-close" class="icon-button" aria-label="Zavřít odběr kalendáře">×</button></div><h2 id="subscribe-title">Nenech si ujít další večer.</h2><p>Přidej si celý rozpis. Změny času i zrušení si kalendář načte při příští synchronizaci; ta může trvat i několik hodin.</p><a id="subscribe-webcal" class="button primary">Otevřít v kalendářové aplikaci ↗</a><label class="calendar-url-label" for="calendar-url">Adresa pro odběr (Google / Outlook → Přidat kalendář z URL)</label><input id="calendar-url" readonly><button id="subscribe-copy" class="button secondary">Kopírovat adresu</button><p id="subscribe-feedback" role="status"></p><p class="small muted">Vyber odběr z URL, nikoli jednorázový import souboru. Odběr obsahuje publikovaný program; koncepty se nezobrazují.</p></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

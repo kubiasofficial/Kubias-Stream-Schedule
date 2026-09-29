@@ -34,7 +34,7 @@
   const seed = {id:"westhaven-2026-09-28", title:"WestHaven — Ezekiel Crowe", category:"RedM · WestHaven RP", description:"Pokračování příběhu Ezekiela Crowea na WestHaven RP.", platform:"twitch", theme:"rp", art:"ROLEPLAY", status:"confirmed", visibility:"published", start:Date.parse("2026-09-28T16:30:00Z"), end:Date.parse("2026-09-28T20:30:00Z"), liveUntil:0, change:"Konec je orientační."};
   function createEvents() {return [{...seed,date:dateKey(seed.start)}];}
   function nextEvent(events, now) {
-    return events.find(e => e.status !== "cancelled" && e.end > now) || null;
+    return events.find(e => e.status !== "cancelled" && e.liveUntil > now && e.end > now) || events.find(e => e.status !== "cancelled" && e.end > now) || null;
   }
   window.KubiasSchedule = { zone, dateKey, addDays, monday, pragueTime, platforms, seed, createEvents, nextEvent };
 })();

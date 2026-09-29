@@ -2,11 +2,9 @@
   "use strict";
   const S = window.KubiasSchedule;
   const $ = (selector) => document.querySelector(selector);
-  const storageKey = "kubias-reactions-v1";
-  const ttl = 30 * 86400000;
   let anchor = S.monday(new Date()), events = S.createEvents(anchor);
   let weekOffset = 0, filter = "all", selectedDay = null, heroEvent = null;
-  let reactions = {}, persistent = true, timer, toastTimer, lastBoundary = "";
+  let timer, toastTimer, lastBoundary = "";
   const labels = { going: "JDU", maybe: "MOŽNÁ", unavailable: "NEDÁM" };
   const symbols = { going: "✦", maybe: "?", unavailable: "×" };
   const days = ["Po","Út","St","Čt","Pá","So","Ne"];
@@ -17,24 +15,6 @@
   function announce(message) {
     const toast = $("#toast"); toast.textContent = message; toast.classList.add("visible");
     clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove("visible"), 4200);
-  }
-  function readReactions() {
-    try {
-      const raw = localStorage.getItem(storageKey);
-      const parsed = raw ? JSON.parse(raw) : {};
-      reactions = {};
-      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-        Object.entries(parsed).forEach(([id, value]) => {
-          if (/^[a-zA-Z0-9_-]{1,100}$/.test(id) && value && Object.hasOwn(labels, value.choice) &&
-            Number.isFinite(value.at) && value.at <= Date.now() && Date.now() - value.at < ttl) reactions[id] = value;
-        });
-      }
-      if (raw && JSON.stringify(parsed) !== JSON.stringify(reactions)) localStorage.setItem(storageKey, JSON.stringify(reactions));
-    } catch { reactions = {}; persistent = false; }
-  }
-  function writeReactions() {
-    try { localStorage.setItem(storageKey, JSON.stringify(reactions)); persistent = true; }
-    catch { persistent = false; }
   }
   function state(event, now = Date.now()) {
     if (event.status === "cancelled") return { text: "Zrušeno", className: "cancelled" };
@@ -61,6 +41,9 @@
   function renderHero() {
     heroEvent = S.nextEvent(events, Date.now());
     const event = heroEvent;
+    const live=!!event && event.status!=='cancelled' && event.liveUntil>Date.now();
+    $('.hero').classList.toggle('is-live',live);
+    $('#live-invite').hidden=!live;
     if (!event) {
       $("#hero-title").textContent = "Další večer už brzy.";
       $("#hero-description").textContent = "Další stream zatím není vypsaný. Mrkni sem zase později.";
@@ -70,7 +53,7 @@
       $("#hero-status").hidden = true; $(".countdown-wrap").hidden = true;
       $("#calendar-button").disabled = true;
       $("#watch-link").href = S.platforms.twitch.url;
-      $("#watch-link").textContent = "Otevřít Twitch ↗";
+      $("#watch-link").textContent = "Otevřít Twitch ↗";$("#watch-link").className="button primary";
       return;
     }
     const status = state(event);
@@ -82,15 +65,15 @@
     $("#hero-status").hidden = false;
     $("#hero-status").className = "badge " + status.className;
     $("#hero-status").textContent = status.text;
-    $("#hero-eyebrow").textContent = event.start <= Date.now() ? "PLÁNOVANÝ STREAM" : "DALŠÍ STREAM";
+    $("#hero-eyebrow").textContent = live ? "PRÁVĚ VYSÍLÁME" : event.start <= Date.now() ? "PLÁNOVANÝ STREAM" : "DALŠÍ STREAM";
     $("#hero-date").innerHTML = '<span>' + escape(relativeDate(event)) + " · " + time(event.start) + '</span><span class="separator" aria-hidden="true">/</span>' + platformMarkup(event.platform);
     const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     $("#viewer-zone").textContent = localZone !== S.zone
       ? "Praha " + date(event.start) + " · U tebe: " + new Intl.DateTimeFormat("cs-CZ", { dateStyle: "short", timeStyle: "short" }).format(event.start)
       : date(event.start) + " · Europe/Prague";
     $("#watch-link").href = S.platforms[event.platform].url;
-    $("#watch-link").className = "button primary " + event.platform;
-    $("#watch-link").innerHTML = '<img class="platform-icon ' + event.platform + '" src="assets/' + event.platform + '.svg" alt="" width="20" height="18">' + (S.platforms[event.platform].channelConfigured ? "Sledovat na Twitchi" : "Otevřít Kick") + ' <span aria-hidden="true">↗</span>';
+    $("#watch-link").className = "button primary " + event.platform + (live ? " live-watch" : "");
+    $("#watch-link").innerHTML = '<img class="platform-icon ' + event.platform + '" src="assets/' + event.platform + '.svg" alt="" width="20" height="18">' + (live ? "Pojď do živého chatu" : S.platforms[event.platform].channelConfigured ? "Sledovat na Twitchi" : "Otevřít Kick") + ' <span aria-hidden="true">↗</span>';
     $("#channel-note").textContent = S.platforms[event.platform].channelConfigured ? "Twitch · kubiasofiko" : "Kick · odkaz zatím vede na platformu.";
     $("#calendar-button").disabled = false; $(".countdown-wrap").hidden = false;
     updateCountdown();
@@ -114,15 +97,16 @@
     $("#countdown-readable").textContent = "Plánovaný začátek " + format(heroEvent.start,{dateStyle:"full",timeStyle:"short"}) + ", čas v Praze.";
   }
   function reactionMarkup(event) {
-    if (event.status === "cancelled") return '<p class="closed-reactions">Tenhle večer si dáváme pauzu.</p>';
-    if (event.start <= Date.now()) return '<p class="closed-reactions">Reakce jsou po plánovaném začátku uzavřené.</p>';
-    const choice = reactions[event.id]?.choice;
-    return '<p class="rsvp-label">DORAZÍŠ? <span class="muted">/ TVOJE REAKCE</span></p><div class="reaction-group" role="group" aria-label="Reakce na ' + escape(event.title) + '">' +
-      Object.entries(labels).map(([key,label]) => '<button class="reaction-button" data-event="' + event.id + '" data-choice="' + key + '" aria-pressed="' + (choice === key) + '"><span aria-hidden="true">' + symbols[key] + '</span>' + label + '</button>').join("") + '</div><p class="reaction-feedback" aria-live="polite">' + (choice ? 'Tvoje volba: ' + labels[choice] : '') + '</p>';
+    const counts='<p class="shared-counts" data-counts="'+event.id+'">Načítám společné reakce…</p>';
+    if (event.status === "cancelled") return counts+'<p class="closed-reactions">Tenhle večer si dáváme pauzu.</p>';
+    if (event.start <= Date.now()) return counts+'<p class="closed-reactions">Reakce jsou po plánovaném začátku uzavřené.</p>';
+    const choice = window.KubiasReactions?.choice(event.id);
+    return '<p class="shared-counts" data-counts="' + event.id + '">Načítám společné reakce…</p><p class="rsvp-label">DORAZÍŠ? <span class="muted">/ TVOJE REAKCE</span></p><div class="reaction-group" role="group" aria-label="Reakce na ' + escape(event.title) + '">' +
+      Object.entries(labels).map(([key,label]) => '<button class="reaction-button" data-event="' + event.id + '" data-choice="' + key + '" ' + (!window.KubiasReactions || window.KubiasReactions.busy ? 'disabled ' : '') + 'aria-pressed="' + (choice === key) + '"><span aria-hidden="true">' + symbols[key] + '</span>' + label + '</button>').join("") + '</div><p class="reaction-feedback" aria-live="polite">' + (choice ? 'Tvoje volba: ' + labels[choice] : '') + '</p>';
   }
   function cardMarkup(event, index) {
     const status = state(event), past = event.end <= Date.now();
-    return '<article class="stream-card ' + (event.status === "cancelled" ? "is-cancelled" : past ? "is-past" : "") + '" id="stream-' + event.id + '">' +
+    return '<article class="stream-card ' + (event.status === "cancelled" ? "is-cancelled" : event.liveUntil>Date.now() ? "is-live" : past ? "is-past" : "") + '" id="stream-' + event.id + '">' +
       '<div class="card-art ' + event.theme + '"><span class="badge ' + status.className + '">' + status.text + '</span>' + gameBranding(event) + '<span class="art-number" aria-hidden="true">K / 0' + (index + 1) + '</span></div>' +
       '<div class="card-body"><div class="card-date"><span>' + escape(format(event.start,{weekday:"long"})) + " " + date(event.start) + '</span><span class="card-time">' + time(event.start) + '</span></div>' +
       '<h3>' + escape(event.title) + '</h3><p class="card-category">' + escape(event.category) + '</p><p class="card-description">' + escape(event.description) + '</p>' +
@@ -151,6 +135,7 @@
     $("#stream-grid").innerHTML = filtered.length ? filtered.map(cardMarkup).join("") :
       '<div class="empty-state"><span class="eyebrow muted">CHVÍLE NA ODDECH</span><h3>Tady zatím není nic v plánu.</h3><p>' + (selectedDay?"Zkus jiný den nebo si prohlédni celý týden.":filter!=="all"?"Na této platformě teď žádný stream není.":"Program pro tento týden ještě není vypsaný.") + '</p><button class="button secondary" data-reset-view>Zobrazit aktuální program</button></div>';
     window.KubiasMotion?.cards();
+    watchReactions();
     document.querySelectorAll("[data-filter]").forEach(button=>{
       const active = button.dataset.filter===filter; button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active));
     });
@@ -176,20 +161,14 @@
     const a = document.createElement("a"); a.href=url;a.download="kubias-"+event.date+".ics";document.body.append(a);a.click();a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),1000);announce("Událost je připravená pro kalendář.");
   }
-  document.addEventListener("click", event => {
+  document.addEventListener("click", async event => {
     const reaction = event.target.closest("[data-choice]");
     if (reaction) {
       const stream = events.find(e=>e.id===reaction.dataset.event);
       if (!stream || stream.status==="cancelled" || stream.start<=Date.now()) { renderSchedule(); announce("Reakce na tento stream už jsou uzavřené."); return; }
-      const id = stream.id, choice = reaction.dataset.choice, removed = reactions[id]?.choice===choice;
-      if (removed) delete reactions[id]; else reactions[id]={choice,at:Date.now()};
-      writeReactions();
-      document.querySelectorAll('[data-event="'+id+'"]').forEach(b=>b.setAttribute("aria-pressed",String(reactions[id]?.choice===b.dataset.choice)));
-      const feedback = reaction.closest(".card-body").querySelector(".reaction-feedback");
-      feedback.textContent = removed ? "Reakce odebrána." : "✓ " + labels[choice] + (persistent ? " · uloženo u tebe" : " · jen do zavření stránky");
-      window.KubiasMotion?.reaction(reaction);
-      announce((removed?"Reakce odebrána.": "Tvoje volba: "+labels[choice]+".") + (persistent?" Uloženo v tomto prohlížeči.":" Úložiště není dostupné; volba platí jen do zavření stránky."));
+      try {announce(await window.KubiasReactions.toggle(stream.id,reaction.dataset.choice));window.KubiasMotion?.reaction(reaction);}catch(error){announce(error.message);} 
     }
+
     const platform = event.target.closest("[data-filter]");
     if (platform) {filter=platform.dataset.filter;renderSchedule();}
     const day = event.target.closest("[data-day]");
@@ -206,11 +185,19 @@
   $("#calendar-button").addEventListener("click",()=>downloadCalendar(heroEvent));
   $("#close-info").addEventListener("click",()=>$("#info-dialog").close());
   $("#info-dialog").addEventListener("click", event => { if(event.target===$("#info-dialog")) {const r=event.target.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom) event.target.close();} });
-  $("#clear-reactions").addEventListener("click",()=>{
-    reactions={};let cleared=true;try{localStorage.removeItem(storageKey);}catch{cleared=false;}
-    renderSchedule();announce(cleared?"Tvoje uložené reakce byly smazány.":"Volby na stránce smazány. Úložiště nelze ověřit; případně vymaž data webu v prohlížeči.");
+  $("#clear-reactions").addEventListener("click",async()=>{
+    const button=$("#clear-reactions");button.disabled=true;button.textContent="Odebírám reakce…";
+    try{announce(await window.KubiasReactions.clear());}catch(error){announce(error.message);}finally{button.disabled=false;button.textContent="Odebrat moje reakce";}
   });
-  window.addEventListener("storage",event=>{if(event.key===storageKey||event.key===null){readReactions();renderSchedule();}});
+  function updateReactions(){
+    const R=window.KubiasReactions;
+    document.querySelectorAll('[data-counts]').forEach(el=>{const t=R?.counts(el.dataset.counts);el.textContent=t ? t.going+' dorazí · '+t.maybe+' možná · '+t.unavailable+' nedorazí' : t===null?'Počty reakcí nejsou dostupné.':'Načítám společné reakce…';});
+    document.querySelectorAll('[data-choice]').forEach(b=>{b.disabled=!R||R.busy;b.setAttribute('aria-pressed',String(R?.choice(b.dataset.event)===b.dataset.choice));});
+    document.querySelectorAll('.reaction-group').forEach(group=>{const id=group.querySelector('[data-event]')?.dataset.event,choice=R?.choice(id);group.nextElementSibling.textContent=choice?'Tvoje volba: '+labels[choice]:'';});
+  }
+  function watchReactions(){window.KubiasReactions?.watch([...document.querySelectorAll('[data-counts]')].map(el=>el.dataset.counts));updateReactions();}
+  window.addEventListener('kubias-reactions',updateReactions);
+  window.addEventListener('kubias-reactions-ready',watchReactions);
   function tick() {
     const now = Date.now(), currentAnchor=S.monday(new Date());
     if(currentAnchor!==anchor){anchor=currentAnchor;weekOffset=0;selectedDay=null;}
@@ -221,5 +208,5 @@
   function startClock(){clearInterval(timer);tick();if(!document.hidden)timer=setInterval(tick,1000);}
   document.addEventListener("visibilitychange",()=>{if(document.hidden)clearInterval(timer);else startClock();});
   window.addEventListener("kubias-streams", e => {events=e.detail;lastBoundary="";tick();});
-  readReactions();startClock();
+  startClock();
 })();
