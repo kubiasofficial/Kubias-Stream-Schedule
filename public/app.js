@@ -32,7 +32,9 @@
   function platformMarkup(key) {
     return '<span class="platform-label ' + key + '"><img class="platform-icon ' + key + '" src="assets/' + key + '.svg" alt="" width="' + (key === "kick" ? 36 : 17) + '" height="18">' + (key === "kick" ? '<span class="sr-only">Kick</span>' : S.platforms[key].name) + '</span>';
   }
+  const isGenK=event=>event.art==="GENK"||/genk/i.test(event.category||"");
   function gameBranding(event) {
+    if(event.theme === "rp" && isGenK(event))return '<div class="game-branding"><img class="game-logo redm-logo" src="assets/redm.svg" alt="RedM" width="198" height="60"><span class="brand-divider"></span><img class="game-logo" src="assets/genk.webp" alt="genK" width="150" height="70"></div>';
     if(event.theme === "rp")return '<div class="game-branding"><img class="game-logo redm-logo" src="assets/redm.svg" alt="RedM" width="198" height="60"><span class="brand-divider" aria-hidden="true"></span><img class="game-logo westhaven-logo" src="assets/westhaven.png" alt="WestHaven RP" width="100" height="100"></div>';
     if(event.theme === "sim")return '<div class="game-branding sim-branding"><img class="game-logo" src="assets/simrail.png" alt="SimRail — The Railway Simulator" width="640" height="360"></div>';
     if(event.theme === "horror")return '<div class="game-branding dbd-branding"><img class="game-logo" src="assets/dbd.png" alt="Dead by Daylight" width="640" height="360"></div>';
@@ -62,6 +64,7 @@
     const brands = $("#hero-game-brands");
     brands.hidden = event.theme !== "rp";
     brands.innerHTML = event.theme === "rp" ? '<img src="assets/redm.svg" alt="RedM" width="88" height="38"><span class="brand-divider" aria-hidden="true"></span><img class="westhaven-logo" src="assets/westhaven.png" alt="WestHaven RP" width="52" height="52"><span>DIVOKÝ ZÁPAD.<br>VLASTNÍ PŘÍBĚH.</span>' : "";
+    if(event.theme==='rp'&&isGenK(event)){const logo=brands.querySelector('.westhaven-logo');logo.src='assets/genk.webp';logo.alt='genK';logo.className='genk-logo';logo.width=90;logo.height=42;}
     $("#hero-status").hidden = false;
     $("#hero-status").className = "badge " + status.className;
     $("#hero-status").textContent = status.text;

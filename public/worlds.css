@@ -4,3 +4,5 @@
 @media(prefers-reduced-motion:reduce){.game-card-visual>img,.character-card>img{transition:none}.game-card:hover .game-card-visual>img,.character-card:hover>img{transform:none}}
 
 .update-notice{display:flex;align-items:center;justify-content:space-between;gap:24px;margin:25px 0 0;padding:20px 24px;border:1px solid #58416b;border-radius:14px;background:linear-gradient(110deg,#271b34,#17121d)}.update-notice>div{min-width:0}.update-notice .eyebrow{font-size:9px;color:#d2b4fa}.update-notice h2{font-size:19px;letter-spacing:-.3px;margin:7px 0}.update-notice p{font-size:12px;line-height:1.8;color:var(--muted);max-width:680px}.update-notice>a{flex-shrink:0;font-size:12px}@media(max-width:640px){.update-notice{align-items:flex-start;flex-direction:column;gap:15px;padding:19px;margin-top:20px}.update-notice h2{font-size:19px}.update-notice>a{width:100%}}
+
+.genk-characters{grid-template-columns:minmax(0,420px)}.genk-server .server-logo{width:160px;height:80px;object-fit:contain}.hero-game-brands .genk-logo{object-fit:contain;max-width:90px}.genk-server{border-color:#78593d}
