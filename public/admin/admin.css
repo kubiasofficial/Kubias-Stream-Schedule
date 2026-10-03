@@ -7,3 +7,5 @@
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
 @media(max-width:520px){.more-actions{flex-basis:100%}.more-menu{position:static;width:100%;margin-top:4px}.more-actions summary{padding-left:0}.editor-heading{flex-wrap:wrap}}
+
+.preset-genk-logo{object-fit:contain;flex-shrink:0}
