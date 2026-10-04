@@ -10,6 +10,6 @@ Ověřeno lokálně: syntaxe JavaScriptu, místní odkazy, desktopový vzhled ge
 
 Veřejný profil neobsahuje tajemství kolem nehody a rodiny ani rozporné údaje časové osy. Hráč zatím není uveden, protože nebyl potvrzen.
 
-Zdroje: logo z https://genk.cz/uploads/monthly_2024_11/GenK-Logotyp-White_web_betaBadge.webp.29df883f95c667729ed423378fcd7eac.webp , používané na https://genk.cz/hry/redm/rozcestnik/ . Logo má v originálu označení BETA.
+Logo: public/assets/Genk-RDR-Red-DC.png dodal uživatel. Nahrazuje původní bílé logo s označením BETA; starý soubor genk.webp byl odstraněn.
 
 Portrét public/assets/characters/eddie-voss.png vznikl vestavěným imagegen z uživatelova screenshotu 2026-10-03 093551. Zadání: zachovat podobu holohlavého vousatého Eddieho, hnědý kabát a pruhované kalhoty; přirozená klidná póza u železničního depa z konce 19. století, měděné světlo, bez HUDu a textu. Originál screenshotu zachován.
